@@ -47,7 +47,7 @@ CREATE TABLE turma (
     codigo_turma INTEGER PRIMARY KEY,
     periodo VARCHAR(20),
     sala VARCHAR(20),
-    codigo_curso INT NOT NULL,
+    codigo_curso INTEGER NOT NULL,
     FOREIGN KEY (codigo_curso) REFERENCES curso(codigo_curso)
 );
 
@@ -65,7 +65,7 @@ CREATE TABLE historico (
     id_historico SERIAL PRIMARY KEY,
     matricula_aluno INTEGER NOT NULL,
     codigo_disciplina INTEGER NOT NULL,
-    nota DECIMAL(4,2),
+    nota DECIMAL,
     situacao VARCHAR(20),
     semestre INTEGER,
     ano INTEGER,
