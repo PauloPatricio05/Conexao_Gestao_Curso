@@ -35,11 +35,11 @@ CREATE TABLE curso (
 
 CREATE TABLE disciplina (
     codigo INTEGER PRIMARY KEY,
-    codigo_curso INT,
+    codigo_curso INTEGER,
     nome VARCHAR(100) NOT NULL,
-    carga_horaria INT,
+    carga_horaria INTEGER,
     tipo_disciplina VARCHAR(50),
-    periodo INT,
+    periodo INTEGER,
     FOREIGN KEY (codigo_curso) REFERENCES curso(codigo_curso)
 );
 
