@@ -1,1 +1,0 @@
-#ÁREA DE CRIAÇÃO
