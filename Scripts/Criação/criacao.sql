@@ -137,3 +137,54 @@ CREATE TABLE pre_requisito (
 	    endereco VARCHAR(255),
 	    FOREIGN KEY (cpf_pessoa) REFERENCES pessoa(cpf)
 	);
+	
+-- Log de alterações de notas
+CREATE TABLE log_nota (
+    id_log SERIAL PRIMARY KEY,
+    matricula_aluno INTEGER,
+    codigo_disciplina INTEGER,
+    nota_antiga NUMERIC,
+    nota_nova NUMERIC,
+    data_alteracao TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+-- Log de matrículas
+CREATE TABLE log_matricula (
+    id_log SERIAL PRIMARY KEY,
+    matricula_aluno INTEGER,
+    codigo_disciplina INTEGER,
+    operacao VARCHAR(20),
+    data_operacao TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+-- Log de exclusão de alunos
+CREATE TABLE log_exclusao_aluno (
+    id_log SERIAL PRIMARY KEY,
+    matricula_aluno INTEGER,
+    cpf VARCHAR(14),
+    data_exclusao TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+-- Log de alterações de professores
+CREATE TABLE log_professor (
+    id_log SERIAL PRIMARY KEY,
+    matricula_professor INTEGER,
+    data_alteracao TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+-- Ocorrências acadêmicas
+CREATE TABLE ocorrencia_academica (
+    id_ocorrencia SERIAL PRIMARY KEY,
+    matricula_aluno INTEGER,
+    codigo_disciplina INTEGER,
+    descricao VARCHAR(255),
+    data_ocorrencia TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+-- Auditoria de disciplinas
+CREATE TABLE auditoria_disciplina (
+    id_auditoria SERIAL PRIMARY KEY,
+    codigo_disciplina INTEGER,
+    nome_disciplina VARCHAR(100),
+    data_criacao TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
