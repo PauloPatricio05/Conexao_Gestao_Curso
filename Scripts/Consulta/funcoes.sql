@@ -277,6 +277,192 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql;
 
+-- Atualiza situação automaticamente
+
+CREATE OR REPLACE FUNCTION atualizar_situacao()
+RETURNS TRIGGER AS
+$$
+BEGIN
+    IF NEW.nota >= 7 THEN
+        NEW.situacao := 'Aprovado';
+    ELSE
+        NEW.situacao := 'Reprovado';
+    END IF;
+
+    RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+
+
+-- Registrar reprovação
+
+CREATE OR REPLACE FUNCTION registrar_reprovacao()
+RETURNS TRIGGER AS
+$$
+BEGIN
+    IF NEW.situacao = 'Reprovado' THEN
+        INSERT INTO ocorrencia_academica (
+            matricula_aluno,
+            codigo_disciplina,
+            descricao
+        )
+        VALUES (
+            NEW.matricula_aluno,
+            NEW.codigo_disciplina,
+            'Aluno reprovado na disciplina'
+        );
+    END IF;
+
+    RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+
+
+-- Log de alteração de nota
+
+CREATE OR REPLACE FUNCTION log_alteracao_nota()
+RETURNS TRIGGER AS
+$$
+BEGIN
+    INSERT INTO log_nota (
+        matricula_aluno,
+        codigo_disciplina,
+        nota_antiga,
+        nota_nova
+    )
+    VALUES (
+        OLD.matricula_aluno,
+        OLD.codigo_disciplina,
+        OLD.nota,
+        NEW.nota
+    );
+
+    RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+
+
+-- Log de matrícula
+
+CREATE OR REPLACE FUNCTION log_matricula_func()
+RETURNS TRIGGER AS
+$$
+BEGIN
+    INSERT INTO log_matricula (
+        matricula_aluno,
+        codigo_disciplina,
+        operacao
+    )
+    VALUES (
+        NEW.matricula_aluno,
+        NEW.codigo_disciplina,
+        'INSERT'
+    );
+
+    RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+
+
+-- Log exclusão de aluno
+
+CREATE OR REPLACE FUNCTION log_exclusao_aluno_func()
+RETURNS TRIGGER AS
+$$
+BEGIN
+    INSERT INTO log_exclusao_aluno (
+        matricula_aluno,
+        cpf
+    )
+    VALUES (
+        OLD.matricula,
+        OLD.cpf_pessoa
+    );
+
+    RETURN OLD;
+END;
+$$ LANGUAGE plpgsql;
+
+
+-- Log alteração professor
+
+CREATE OR REPLACE FUNCTION log_professor_func()
+RETURNS TRIGGER AS
+$$
+BEGIN
+    INSERT INTO log_professor (
+        matricula_professor
+    )
+    VALUES (
+        NEW.matricula_professor
+    );
+
+    RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+
+
+-- Criar histórico vazio ao cadastrar aluno
+
+CREATE OR REPLACE FUNCTION criar_historico_aluno()
+RETURNS TRIGGER AS
+$$
+BEGIN
+    INSERT INTO historico (
+        matricula_aluno,
+        codigo_disciplina,
+        nota,
+        situacao,
+        semestre,
+        ano
+    )
+    VALUES (
+        NEW.matricula,
+        101,
+        NULL,
+        NULL,
+        NULL,
+        NULL
+    );
+
+    RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+
+
+-- Auditoria de disciplina
+
+CREATE OR REPLACE FUNCTION auditoria_disciplina_func()
+RETURNS TRIGGER AS
+$$
+BEGIN
+    INSERT INTO auditoria_disciplina (
+        codigo_disciplina,
+        nome_disciplina
+    )
+    VALUES (
+        NEW.codigo,
+        NEW.nome
+    );
+
+    RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+
+
+-- Registrar data de criação de turma
+
+CREATE OR REPLACE FUNCTION registrar_data_turma()
+RETURNS TRIGGER AS
+$$
+BEGIN
+    NEW.periodo :=
+        NEW.periodo || ' - Criada em ' || CURRENT_DATE;
+
+    RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+
 -- ==========================================
 -- EXEMPLOS DE USO
 -- ==========================================
